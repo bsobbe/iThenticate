@@ -89,7 +89,11 @@ class Ithenticate
         $response = $client->send(new Request('login', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         $sid = $response['val']['me']['struct']['sid']['me']['string'];
-        return $sid;
+        if (isset($sid) && $sid != null) {
+            return $sid;
+        } else {
+            return false;
+        }
     }
 
     public function submitDocument($essay_title, $author_firstname, $author_lastname, $filename, $document_content, $folder_number)
@@ -119,6 +123,10 @@ class Ithenticate
         $response = $client->send(new Request('document.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         $essay_id = $response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'];
-        return $essay_id;
+        if (isset($essay_id) && $essay_id != null) {
+            return $essay_id;
+        } else {
+            return false;
+        }
     }
 }
