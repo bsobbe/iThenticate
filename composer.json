@@ -1,0 +1,19 @@
+{
+    "name": "bsobbe/ithenticate",
+    "description": "A library to use Ithenticate API easier and faster, to check and prevent plagiarism",
+    "type": "php-library",
+    "keywords": ["php", "ithenticate", "crossref", "plagiarism", "plagiarism-prevention", "library", "api"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sobhan Bagheri (A.K.A sobbe)",
+            "email": "b.sobhanbagheri@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "bsobbe\\ithenticate\\": ""
+        }
+    }
+}
