@@ -91,4 +91,35 @@ class Ithenticate
         $sid = $response['val']['me']['struct']['sid']['me']['string'];
         return $sid;
     }
+
+    public function submitDocument($essay_title, $author_firstname, $author_lastname, $filename, $document_content, $folder_number)
+    {
+        $client = new Client($this->getUrl());
+
+        $uploads_array = array(
+            new Value(
+                array(
+                    'title'        => new Value($essay_title),
+                    'author_first' => new Value($author_firstname),
+                    'author_last'  => new Value($author_lastname),
+                    'filename'     => new Value($filename),
+                    'upload'       => new Value($document_content, 'base64'),
+                ),
+                'struct'
+            ),
+        );
+
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'folder' => new Value($folder_number),
+            'submit_to' => new Value(1),
+            'uploads' => new Value($uploads_array, 'array'),
+        );
+
+        $response = $client->send(new Request('document.add', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        $essay_id = $response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'];
+        //return $essay_id;
+        var_dump($essay_id);
+    }
 }
