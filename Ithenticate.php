@@ -2,6 +2,10 @@
 
 namespace bsobbe\ithenticate;
 
+use PhpXmlRpc\Value;
+use PhpXmlRpc\Request;
+use PhpXmlRpc\Client;
+
 class Ithenticate
 {
     private $url;
@@ -73,37 +77,20 @@ class Ithenticate
         }
     }
 
-    private function curlCall($request)
-    {
-
-        $url = $this->getUrl();
-        $header[] = "Content-type: text/xml";
-        $header[] = "Content-length: ".strlen($request);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-
-        $data = curl_exec($ch);
-        if (curl_errno($ch)) {
-            print curl_error($ch);
-        } else {
-            curl_close($ch);
-            return $data;
-        }
-    }
-
     private function login()
     {
-        if (isset($this->username) && isset($this->password)) {
-            $args = array (
-                "username" => xmlrpc_encode($this->getUsername()),
-                "password" => xmlrpc_encode($this->getPassword()),
-            );
-            var_dump($this->curlCall($args));
-        }
+        $client = new Client($this->getUrl());
+        $value = new value;
+
+        $args = array(
+            'username' => new Value($this->getUsername()),
+            'password' => new Value($this->getPassword())
+        );
+
+        $response = $client->send(new Request('login', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        $sid = $response['val']['me']['struct']['sid']['me']['string'];
+        //return $sid;
+        var_dump($sid);
     }
 }
