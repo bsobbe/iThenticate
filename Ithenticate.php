@@ -10,7 +10,8 @@ class Ithenticate
 
     public function __construct($username, $password)
     {
-
+        $this->setUsername($username);
+        $this->setPassword($password);
     }
 
     public function setUsername($username)
