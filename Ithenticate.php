@@ -119,7 +119,6 @@ class Ithenticate
         $response = $client->send(new Request('document.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         $essay_id = $response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'];
-        //return $essay_id;
-        var_dump($essay_id);
+        return $essay_id;
     }
 }
