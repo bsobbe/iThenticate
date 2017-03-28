@@ -10,7 +10,9 @@
             "email": "b.sobhanbagheri@gmail.com"
         }
     ],
-    "require": {},
+    "require": {
+        "phpxmlrpc/phpxmlrpc": "4.0"
+    },
     "autoload": {
         "psr-4": {
             "bsobbe\\ithenticate\\": ""
