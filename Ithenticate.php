@@ -2,17 +2,32 @@
 
 namespace bsobbe\ithenticate;
 
+/*
+ * Using needed classes from PhpXmlRpc library.
+ */
 use PhpXmlRpc\Value;
 use PhpXmlRpc\Request;
 use PhpXmlRpc\Client;
 
 class Ithenticate
 {
+    /*
+     * This property is for ithenticate API Url.
+     */
     private $url;
+    /*
+     * These properties are for storing Ithenticate's API Username and Password.
+     */
     private $username;
     private $password;
+    //This property will be filled with the login session hash value returned by Ithenticate's API after logging in.
     private $sid;
 
+    /*
+     * Construct method initializes Url, Username, and Password in properties.
+     * It also logs in using login method and puts the login hash session into
+     * the defined property.
+     */
     public function __construct($username, $password)
     {
         $this->setUrl("https://api.ithenticate.com/rpc");
@@ -21,6 +36,9 @@ class Ithenticate
         $this->setSid($this->login());
     }
 
+    /*
+     * This is setter method for Ithenticate's API Url.
+     */
     public function setUrl($url)
     {
         if (property_exists($this, 'url')) {
@@ -28,6 +46,9 @@ class Ithenticate
         }
     }
 
+    /*
+     * This is setter method for Ithenticate's API Username.
+     */
     public function setUsername($username)
     {
         if (property_exists($this, 'username')) {
@@ -35,6 +56,9 @@ class Ithenticate
         }
     }
 
+    /*
+     * This is setter method for Ithenticate's API Password.
+     */
     public function setPassword($password)
     {
         if (property_exists($this, 'password')) {
@@ -42,6 +66,9 @@ class Ithenticate
         }
     }
 
+    /*
+     * This is setter method for Ithenticate's responded hash login session.
+     */
     public function setSid($sid)
     {
         if (property_exists($this, "sid")) {
@@ -49,6 +76,9 @@ class Ithenticate
         }
     }
 
+    /*
+     * This is getter method for Ithenticate's API Url.
+     */
     public function getUrl()
     {
         if (property_exists($this, 'url')) {
@@ -56,6 +86,9 @@ class Ithenticate
         }
     }
 
+    /*
+     * This is getter method for Ithenticate's API Username.
+     */
     public function getUsername()
     {
         if (property_exists($this, 'username')) {
@@ -63,6 +96,9 @@ class Ithenticate
         }
     }
 
+    /*
+     * This is getter method for Ithenticate's API Password.
+     */
     public function getPassword()
     {
         if (property_exists($this, 'password')) {
@@ -70,6 +106,9 @@ class Ithenticate
         }
     }
 
+    /*
+     * This is getter method for Ithenticate's responded hash login session.
+     */
     public function getSid()
     {
         if (property_exists($this, 'sid')) {
@@ -77,6 +116,11 @@ class Ithenticate
         }
     }
 
+    /*
+     * This method logs into Ithenticate using Username and Password
+     * The return value is Ithenticate's login hash session which will
+     * be used in other methods as the authentication.
+     */
     private function login()
     {
         $client = new Client($this->getUrl());
@@ -96,6 +140,13 @@ class Ithenticate
         }
     }
 
+    /*
+     * This method submits new documents into Ithenticate into your prefered folder.
+     * The return value is the unique number of the submitted document which will be
+     * used for getting result and other actions which will be performed on document.
+     * The last parameter in the method is the number of the folder which you want to
+     * save the document in it.
+     */
     public function submitDocument($essay_title, $author_firstname, $author_lastname, $filename, $document_content, $folder_number)
     {
         $client = new Client($this->getUrl());
