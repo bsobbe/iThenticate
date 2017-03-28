@@ -18,7 +18,7 @@ class Ithenticate
         $this->setUrl("https://api.ithenticate.com/rpc");
         $this->setUsername($username);
         $this->setPassword($password);
-        $this->login();
+        $this->setSid($this->login());
     }
 
     public function setUrl($url)
@@ -80,7 +80,6 @@ class Ithenticate
     private function login()
     {
         $client = new Client($this->getUrl());
-        $value = new value;
 
         $args = array(
             'username' => new Value($this->getUsername()),
@@ -90,7 +89,6 @@ class Ithenticate
         $response = $client->send(new Request('login', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         $sid = $response['val']['me']['struct']['sid']['me']['string'];
-        //return $sid;
-        var_dump($response);
+        return $sid;
     }
 }
