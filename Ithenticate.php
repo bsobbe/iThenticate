@@ -91,6 +91,6 @@ class Ithenticate
         $response = json_decode(json_encode($response), true);
         $sid = $response['val']['me']['struct']['sid']['me']['string'];
         //return $sid;
-        var_dump($sid);
+        var_dump($response);
     }
 }
