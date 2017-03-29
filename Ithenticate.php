@@ -213,8 +213,29 @@ class Ithenticate
         $response = json_decode(json_encode($response), true);
         $report_id = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'];
 
-        if (isset($report_id) && $report_id !== null) {
+        if (isset($report_id) && $report_id != null) {
             return $report_id;
+        } else {
+            return false;
+        }
+    }
+
+    public function fetchDocumentReportUrl($report_id, $exclude_biblio = 1, $exclude_quotes = 1, $exclude_small_matches = 1)
+    {
+        $client = new Client($this->getUrl());
+
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'id' => new Value($report_id),
+            'exclude_biblio' => new Value($exclude_biblio),
+            'exclude_quotes' => new Value($exclude_quotes),
+            'exclude_small_matches' => new Value($exclude_small_matches),
+        );
+        $response = $client->send(new Request('report.get', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        $report_url = $response['val']['me']['struct']['view_only_url']['me']['string'];
+        if (isset($report_url) && $report_url != null) {
+            return $report_url;
         } else {
             return false;
         }
