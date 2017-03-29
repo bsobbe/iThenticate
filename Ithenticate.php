@@ -194,13 +194,13 @@ class Ithenticate
         $is_pending = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'];
         $report_id = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'];
 
-        if (isset($is_pending) && $is_pending != null) {
+        if (isset($is_pending) && $is_pending !== null) {
             $report_state['is_pending'] = $is_pending;
         } else {
             return false;
         }
 
-        if (isset($report_id) && $report_id != null) {
+        if (isset($report_id) && $report_id !== null) {
             $report_state['report_id'] = $report_id;
         } else {
             return false;
