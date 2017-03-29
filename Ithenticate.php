@@ -191,21 +191,32 @@ class Ithenticate
         );
         $response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-        $is_pending = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'];
+        $state = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'];
+
+        if (isset($state) && $state !== null) {
+            $is_pending['is_pending'] = $state;
+            return $is_pending;
+        } else {
+            return false;
+        }
+    }
+
+    public function fetchDocumentReportId($document_id)
+    {
+        $client = new Client($this->getUrl());
+
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'id' => new Value($document_id),
+        );
+        $response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
         $report_id = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'];
 
-        if (isset($is_pending) && $is_pending !== null) {
-            $report_state['is_pending'] = $is_pending;
-        } else {
-            return false;
-        }
-
         if (isset($report_id) && $report_id !== null) {
-            $report_state['report_id'] = $report_id;
+            return $report_id;
         } else {
             return false;
         }
-
-        return $report_state;
     }
 }
