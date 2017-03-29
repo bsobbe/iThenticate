@@ -124,7 +124,6 @@ class Ithenticate
     private function login()
     {
         $client = new Client($this->getUrl());
-
         $args = array(
             'username' => new Value($this->getUsername()),
             'password' => new Value($this->getPassword())
@@ -132,7 +131,18 @@ class Ithenticate
 
         $response = $client->send(new Request('login', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-        $sid = $response['val']['me']['struct']['sid']['me']['string'];
+
+        if (isset($response['val']['me']['struct']['sid']['me']['string'])) {
+            $sid = $response['val']['me']['struct']['sid']['me']['string'];
+            if ($sid != null) {
+                return $sid;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
         if (isset($sid) && $sid != null) {
             return $sid;
         } else {
@@ -150,7 +160,6 @@ class Ithenticate
     public function submitDocument($essay_title, $author_firstname, $author_lastname, $filename, $document_content, $folder_number)
     {
         $client = new Client($this->getUrl());
-
         $uploads_array = array(
             new Value(
                 array(
@@ -163,7 +172,6 @@ class Ithenticate
                 'struct'
             ),
         );
-
         $args = array(
             'sid' => new Value($this->getSid()),
             'folder' => new Value($folder_number),
@@ -173,9 +181,13 @@ class Ithenticate
 
         $response = $client->send(new Request('document.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-        $document_id = $response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'];
-        if (isset($document_id) && $document_id != null) {
-            return $document_id;
+        if (isset($response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'])) {
+            $document_id = $response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'];
+            if ($document_id != null) {
+                return $document_id;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
@@ -184,37 +196,44 @@ class Ithenticate
     public function fetchDocumentReportState($document_id)
     {
         $client = new Client($this->getUrl());
-
         $args = array(
             'sid' => new Value($this->getSid()),
             'id' => new Value($document_id),
         );
+
         $response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-        $state = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'];
-
-        if (isset($state) && $state !== null) {
-            $is_pending['is_pending'] = $state;
-            return $is_pending;
+        if (isset($response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'])) {
+            $state = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'];
+            if ($state !== null) {
+                $is_pending['is_pending'] = $state;
+                return $is_pending;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
+
     }
 
     public function fetchDocumentReportId($document_id)
     {
         $client = new Client($this->getUrl());
-
         $args = array(
             'sid' => new Value($this->getSid()),
             'id' => new Value($document_id),
         );
+
         $response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-        $report_id = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'];
-
-        if (isset($report_id) && $report_id != null) {
-            return $report_id;
+        if (isset($response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'])) {
+            $report_id = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'];
+            if ($report_id != null) {
+                return $report_id;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
@@ -223,7 +242,6 @@ class Ithenticate
     public function fetchDocumentReportUrl($report_id, $exclude_biblio = 1, $exclude_quotes = 1, $exclude_small_matches = 1)
     {
         $client = new Client($this->getUrl());
-
         $args = array(
             'sid' => new Value($this->getSid()),
             'id' => new Value($report_id),
@@ -231,6 +249,7 @@ class Ithenticate
             'exclude_quotes' => new Value($exclude_quotes),
             'exclude_small_matches' => new Value($exclude_small_matches),
         );
+
         $response = $client->send(new Request('report.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['view_only_url']['me']['string'])) {
