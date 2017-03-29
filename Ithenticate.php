@@ -233,9 +233,13 @@ class Ithenticate
         );
         $response = $client->send(new Request('report.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-        $report_url = $response['val']['me']['struct']['view_only_url']['me']['string'];
-        if (isset($report_url) && $report_url != null) {
-            return $report_url;
+        if (isset($response['val']['me']['struct']['view_only_url']['me']['string'])) {
+            $report_url = $response['val']['me']['struct']['view_only_url']['me']['string'];
+            if ($report_url != null) {
+                return $report_url;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
