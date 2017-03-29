@@ -131,7 +131,6 @@ class Ithenticate
 
         $response = $client->send(new Request('login', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-
         if (isset($response['val']['me']['struct']['sid']['me']['string'])) {
             $sid = $response['val']['me']['struct']['sid']['me']['string'];
             if ($sid != null) {
@@ -139,12 +138,6 @@ class Ithenticate
             } else {
                 return false;
             }
-        } else {
-            return false;
-        }
-
-        if (isset($sid) && $sid != null) {
-            return $sid;
         } else {
             return false;
         }
