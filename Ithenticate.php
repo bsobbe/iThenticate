@@ -173,11 +173,39 @@ class Ithenticate
 
         $response = $client->send(new Request('document.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-        $essay_id = $response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'];
-        if (isset($essay_id) && $essay_id != null) {
-            return $essay_id;
+        $document_id = $response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'];
+        if (isset($document_id) && $document_id != null) {
+            return $document_id;
         } else {
             return false;
         }
+    }
+
+    public function fetchDocumentReportState($document_id)
+    {
+        $client = new Client($this->getUrl());
+
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'id' => new Value($document_id),
+        );
+        $response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        $is_pending = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'];
+        $report_id = $response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'];
+
+        if (isset($is_pending) && $is_pending != null) {
+            $report_state['is_pending'] = $is_pending;
+        } else {
+            return false;
+        }
+
+        if (isset($report_id) && $report_id != null) {
+            $report_state['report_id'] = $report_id;
+        } else {
+            return false;
+        }
+
+        return $report_state;
     }
 }
