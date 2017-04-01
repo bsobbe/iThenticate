@@ -38,9 +38,9 @@ $result = $ithenticate->submitDocument(
                 "Cloud Computing",
                 "Sobhan",
                 "Bagheri",
-                "[File name from the object of the uploaded temp file]",
-                "[Document content fetched with php file_get_contents() function from the document file]",
-                [Folder number to store document](You can get folder number from last part of ithenticate panel URL)
+                "CloudComputingEssay.pdf", //File name from the object of the uploaded temp file.
+                $content, //Document content fetched with php file_get_contents() function from the document file.
+                649216 //Folder number to store document (You can get folder number from last part of ithenticate panel URL).
           );
 ```
 
