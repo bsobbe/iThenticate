@@ -1,4 +1,4 @@
-# PHP iThenticate
+# PHP [iThenticate](http://www.ithenticate.com/)
 A library to use **iThenticate** API easier and faster, to check and prevent plagiarism.
 
 ### Installation
