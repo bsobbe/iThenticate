@@ -47,4 +47,4 @@ $result = $ithenticate->submitDocument(
 ### Contribute
 Feel free to **contribute** and add new methods based on ithenticate's [API Guide](http://www.ithenticate.com/hs-fs/hub/92785/file-1383985272-pdf/iTh_documentation/iThenticate_API_Manual.pdf?t=1488585417195) 
 
-Add methods usage instructions in the ReadMe.
+Add method usage instructions in ReadMe.md
