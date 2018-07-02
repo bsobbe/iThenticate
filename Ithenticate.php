@@ -186,6 +186,64 @@ class Ithenticate
         }
     }
 
+    public function createGroup($group_name)
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'name' => new Value($group_name),
+        );
+
+        $response = $client->send(new Request('group.add', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        if (isset($response['val']['me']['struct']['id']['me']['int'])) {
+            return $response['val']['me']['struct']['id']['me']['int'];
+        }
+        return false;
+    }
+
+    public function createFolder($folder_name, $folder_description, $group_id, $exclude_quotes)
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'folder_group' => new Value($group_id),
+            'name' => new Value($folder_name),
+            'description' => new Value($folder_description),
+            'exclude_quotes' => new Value($exclude_quotes),
+        );
+
+        $response = $client->send(new Request('folder.add', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        if (isset($response['val']['me']['struct']['id']['me']['int'])) {
+            return $response['val']['me']['struct']['id']['me']['int'];
+        }
+        return false;
+    }
+
+    public function fetchGroupList()
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+        );
+
+        $response = $client->send(new Request('group.list', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        if (isset($response['val']['me']['struct']['groups']['me']['array'])) {
+            return array_combine(
+                array_map(function($o) {
+                    return $o['me']['struct']['id']['me']['int'];
+                }, $response['val']['me']['struct']['groups']['me']['array']),
+                array_map(function($o) {
+                    return $o['me']['struct']['name']['me']['string'];
+                }, $response['val']['me']['struct']['groups']['me']['array'])
+            );
+        } else {
+            return false;
+        }
+    }
+
     public function fetchDocumentReportState($document_id)
     {
         $client = new Client($this->getUrl());
