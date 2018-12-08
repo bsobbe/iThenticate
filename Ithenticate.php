@@ -244,6 +244,29 @@ class Ithenticate
         }
     }
 
+    public function fetchFolderList()
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+        );
+
+        $response = $client->send(new Request('folder.list', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+        if (isset($response['val']['me']['struct']['folders']['me']['array'])) {
+            return array_combine(
+                array_map(function($o) {
+                    return $o['me']['struct']['id']['me']['int'];
+                }, $response['val']['me']['struct']['folders']['me']['array']),
+                array_map(function($o) {
+                    return $o['me']['struct']['name']['me']['string'];
+                }, $response['val']['me']['struct']['folders']['me']['array'])
+            );
+        } else {
+            return false;
+        }
+    }
+
     public function fetchDocumentReportState($document_id)
     {
         $client = new Client($this->getUrl());
