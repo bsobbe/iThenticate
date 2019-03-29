@@ -131,6 +131,9 @@ class Ithenticate
 
         $response = $client->send(new Request('login', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
+        if($response['val']['me']['struct']['status']['me']['int'] === 401){
+		    throw new \Exception($response['val']['me']['struct']['messages']['me']['array'][0]['me']['string'],401);
+		}
         if (isset($response['val']['me']['struct']['sid']['me']['string'])) {
             $sid = $response['val']['me']['struct']['sid']['me']['string'];
             if ($sid != null) {
