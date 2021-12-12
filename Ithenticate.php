@@ -2,7 +2,7 @@
 
 namespace bsobbe\ithenticate;
 
-/*
+/**
  * Using needed classes from PhpXmlRpc library.
  */
 use PhpXmlRpc\Value;
@@ -11,11 +11,11 @@ use PhpXmlRpc\Client;
 
 class Ithenticate
 {
-    /*
+    /**
      * This property is for ithenticate API Url.
      */
     private $url;
-    /*
+    /**
      * These properties are for storing Ithenticate's API Username and Password.
      */
     private $username;
@@ -23,7 +23,7 @@ class Ithenticate
     //This property will be filled with the login session hash value returned by Ithenticate's API after logging in.
     private $sid;
 
-    /*
+    /**
      * Construct method initializes Url, Username, and Password in properties.
      * It also logs in using login method and puts the login hash session into
      * the defined property.
@@ -36,7 +36,7 @@ class Ithenticate
         $this->setSid($this->login());
     }
 
-    /*
+    /**
      * This is setter method for Ithenticate's API Url.
      */
     public function setUrl($url)
@@ -46,7 +46,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This is setter method for Ithenticate's API Username.
      */
     public function setUsername($username)
@@ -56,7 +56,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This is setter method for Ithenticate's API Password.
      */
     public function setPassword($password)
@@ -66,7 +66,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This is setter method for Ithenticate's responded hash login session.
      */
     public function setSid($sid)
@@ -76,7 +76,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This is getter method for Ithenticate's API Url.
      */
     public function getUrl()
@@ -86,7 +86,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This is getter method for Ithenticate's API Username.
      */
     public function getUsername()
@@ -96,7 +96,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This is getter method for Ithenticate's API Password.
      */
     public function getPassword()
@@ -106,7 +106,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This is getter method for Ithenticate's responded hash login session.
      */
     public function getSid()
@@ -116,7 +116,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This method logs into Ithenticate using Username and Password
      * The return value is Ithenticate's login hash session which will
      * be used in other methods as the authentication.
@@ -133,8 +133,8 @@ class Ithenticate
         $response = json_decode(json_encode($response), true);
 
         if ($response['val']['me']['struct']['status']['me']['int'] === 401) {
-		throw new \Exception($response['val']['me']['struct']['messages']['me']['array'][0]['me']['string'], 401);
-	}
+            throw new \Exception($response['val']['me']['struct']['messages']['me']['array'][0]['me']['string'], 401);
+        }
 
         if (isset($response['val']['me']['struct']['sid']['me']['string'])) {
             $sid = $response['val']['me']['struct']['sid']['me']['string'];
@@ -148,7 +148,7 @@ class Ithenticate
         }
     }
 
-    /*
+    /**
      * This method submits new documents into Ithenticate into your prefered folder.
      * The return value is the unique number of the submitted document which will be
      * used for getting result and other actions which will be performed on document.
@@ -191,6 +191,9 @@ class Ithenticate
         }
     }
 
+    /**
+     * Create a new group
+     */
     public function createGroup($group_name)
     {
         $client = new Client($this->getUrl());
@@ -207,7 +210,10 @@ class Ithenticate
         return false;
     }
 
-    public function createFolder($folder_name, $folder_description, $group_id, $exclude_quotes)
+    /**
+     * Create a new folder
+     */
+    public function createFolder($folder_name, $folder_description, $group_id, $exclude_quotes, $add_to_index)
     {
         $client = new Client($this->getUrl());
         $args = array(
@@ -216,6 +222,7 @@ class Ithenticate
             'name' => new Value($folder_name),
             'description' => new Value($folder_description),
             'exclude_quotes' => new Value($exclude_quotes),
+            'add_to_index' => new Value($add_to_index),
         );
 
         $response = $client->send(new Request('folder.add', array(new Value($args, "struct"))));
@@ -227,10 +234,9 @@ class Ithenticate
     }
 
 
-    /*
+    /**
      * This method fetch all subfolders in a specific folder
-    */
-
+     */
     public function fetchFolderInGroup($folderId)
     {
         $client = new Client($this->getUrl());
@@ -238,7 +244,6 @@ class Ithenticate
             'sid' => new Value($this->getSid()),
             'id' => new Value($folderId),
             'r' => new Value('500'),
-
         );
         $response = $client->send(new Request('group.folders', array(new Value($args, "struct"))));
 
@@ -255,9 +260,11 @@ class Ithenticate
         } else {
             return false;
         }
-
     }
 
+    /**
+     * Retrieve the group list
+     */
     public function fetchGroupList()
     {
         $client = new Client($this->getUrl());
@@ -281,6 +288,9 @@ class Ithenticate
         }
     }
 
+    /**
+     * Retrieve the folder list
+     */
     public function fetchFolderList()
     {
         $client = new Client($this->getUrl());
@@ -328,31 +338,31 @@ class Ithenticate
         $return = [];
         if (isset($response['val']['me']['struct']['documents']['me']['array'])) {
             foreach ($response['val']['me']['struct']['documents']['me']['array'] as $index => $document_array) {
-              $document_data = $document_array['me']['struct'];
-              if (isset($document_data['author_first']['me']['string'])) {
-                $return['documents'][$index]['author_first'] = $document_data['author_first']['me']['string'];
-              }
-              if (isset($document_data['author_last']['me']['string'])) {
-                $return['documents'][$index]['author_last'] = $document_data['author_last']['me']['string'];
-              }
-              $return['documents'][$index]['is_pending'] = $document_data['is_pending']['me']['int'];
-              $return['documents'][$index]['id'] = $document_data['id']['me']['int'];
-              $return['documents'][$index]['processed_time'] = $document_data['processed_time']['me']['dateTime.iso8601'];
-              $return['documents'][$index]['percent_match'] = $document_data['percent_match']['me']['int'];
-              $return['documents'][$index]['title'] = $document_data['title']['me']['string'];
-              $return['documents'][$index]['uploaded_time'] = $document_data['uploaded_time']['me']['dateTime.iso8601'];
-
-              if (isset($document_data['parts']['me']['array'])) {
-                foreach ($document_data['parts']['me']['array'] as $part_index => $parts_array) {
-                  $part_data = $parts_array['me']['struct'];
-                  $return['documents'][$index]['parts'][$part_index]['max_percent_match'] = $part_data['max_percent_match']['me']['int'];
-                  $return['documents'][$index]['parts'][$part_index]['processed_time'] = $part_data['processed_time']['me']['string'];
-                  $return['documents'][$index]['parts'][$part_index]['score'] = $part_data['score']['me']['int'];
-                  $return['documents'][$index]['parts'][$part_index]['words'] = $part_data['words']['me']['int'];
-                  $return['documents'][$index]['parts'][$part_index]['id'] = $part_data['id']['me']['int'];
-                  $return['documents'][$index]['parts'][$part_index]['doc_id'] = $part_data['doc_id']['me']['int'];
+                $document_data = $document_array['me']['struct'];
+                if (isset($document_data['author_first']['me']['string'])) {
+                    $return['documents'][$index]['author_first'] = $document_data['author_first']['me']['string'];
                 }
-              }
+                if (isset($document_data['author_last']['me']['string'])) {
+                    $return['documents'][$index]['author_last'] = $document_data['author_last']['me']['string'];
+                }
+                $return['documents'][$index]['is_pending'] = $document_data['is_pending']['me']['int'];
+                $return['documents'][$index]['id'] = $document_data['id']['me']['int'];
+                $return['documents'][$index]['processed_time'] = $document_data['processed_time']['me']['dateTime.iso8601'];
+                $return['documents'][$index]['percent_match'] = $document_data['percent_match']['me']['int'];
+                $return['documents'][$index]['title'] = $document_data['title']['me']['string'];
+                $return['documents'][$index]['uploaded_time'] = $document_data['uploaded_time']['me']['dateTime.iso8601'];
+
+                if (isset($document_data['parts']['me']['array'])) {
+                    foreach ($document_data['parts']['me']['array'] as $part_index => $parts_array) {
+                        $part_data = $parts_array['me']['struct'];
+                        $return['documents'][$index]['parts'][$part_index]['max_percent_match'] = $part_data['max_percent_match']['me']['int'];
+                        $return['documents'][$index]['parts'][$part_index]['processed_time'] = $part_data['processed_time']['me']['string'];
+                        $return['documents'][$index]['parts'][$part_index]['score'] = $part_data['score']['me']['int'];
+                        $return['documents'][$index]['parts'][$part_index]['words'] = $part_data['words']['me']['int'];
+                        $return['documents'][$index]['parts'][$part_index]['id'] = $part_data['id']['me']['int'];
+                        $return['documents'][$index]['parts'][$part_index]['doc_id'] = $part_data['doc_id']['me']['int'];
+                    }
+                }
             }
             $return['sid'] = $response['val']['me']['struct']['sid']['me']['string'];
             $return['api_status'] = $response['val']['me']['struct']['api_status']['me']['int'];
@@ -412,6 +422,9 @@ class Ithenticate
         return $return;
     }
 
+    /**
+     * Fetch the document report state
+     */
     public function fetchDocumentReportState($document_id)
     {
         $client = new Client($this->getUrl());
@@ -436,6 +449,9 @@ class Ithenticate
 
     }
 
+    /**
+     * Fetch the document report ID
+     */
     public function fetchDocumentReportId($document_id)
     {
         $client = new Client($this->getUrl());
@@ -458,6 +474,9 @@ class Ithenticate
         }
     }
 
+    /**
+     * Fetch the document report URL
+     */
     public function fetchDocumentReportUrl($report_id, $exclude_biblio = 1, $exclude_quotes = 1, $exclude_small_matches = 1)
     {
         $client = new Client($this->getUrl());
@@ -528,7 +547,7 @@ class Ithenticate
      */
     protected function readFolder($response_array) {
         if (!isset($response_array['val']['me']['struct']['folder']['me']['struct'])) {
-          return [];
+            return [];
         }
 
         $return = [];

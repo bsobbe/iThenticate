@@ -74,6 +74,6 @@ $report_url = $result['report_url'];
 ```
 
 ### Contribute
-Feel free to **contribute** and add new methods based on ithenticate's [API Guide](http://www.ithenticate.com/hs-fs/hub/92785/file-1383985272-pdf/iTh_documentation/iThenticate_API_Manual.pdf?t=1488585417195) 
+Feel free to **contribute** and add new methods based on ithenticate's [API Guide](https://help.turnitin.com/ithenticate/ithenticate-developer/api/api-guide.htm#APImethodreference)
 
 Add method usage instructions in ReadMe.md
