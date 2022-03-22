@@ -571,4 +571,118 @@ class Ithenticate
 
         return $return;
     }
+	
+	/************************************************************************************/
+	/* proposed user management 	joelfan dario.basset@unimi.it						*/
+	/* 2022 03 11																		*/
+	/************************************************************************************/
+
+    /**
+     * Lists all the existing users.
+     *
+     * @param none.
+     *
+     * @return array
+     *   An array that contains users in the form of id - userEmail.
+     */
+
+	public function fetchUserList()
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+        );
+
+        $response = $client->send(new Request('user.list', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+		//print_r($response);
+		$returnCode = $response['val']['me']['struct']['status'];
+        if (isset($response['val']['me']['struct']['users']['me']['array'])) {
+            return array_combine(
+                array_map(function($o) {
+                    return $o['me']['struct']['id']['me']['int'];
+                }, $response['val']['me']['struct']['users']['me']['array']),
+                array_map(function($o) {
+                    return $o['me']['struct']['email']['me']['string'];
+                }, 
+				$response['val']['me']['struct']['users']['me']['array'])
+            );
+        } else {
+            return false;
+        }
+    }
+	
+    /**
+     * Creates a new user.
+     *
+     * @param Email, firstName, lastName of the new user.
+     *
+     * @return id of the new user (integer)
+     *   An integer that is the id of the user or -1.
+     */
+
+	public function addUser($userEmail, $firstName, $lastName)
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'email' => new Value($userEmail),
+            'first_name' => new Value($firstName),
+            'last_name' => new Value($lastName),
+        );
+
+        $response = $client->send(new Request('user.add', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+		$returnCode = $response['val']['me']['struct']['status']['me']['int'];
+		if ($returnCode < 300) {
+			$userId = $response['val']['me']['struct']['id']['me']['int'];
+			return ($userId);
+		} else return (-1); 
+    }
+
+	/**
+    * Drops an existing user.
+    *
+    * @param userId.
+    *
+    * @return integer return code.
+    *   An integer that is the return code of the call.
+    */
+
+	public function dropUser($id)
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'id' => new Value($id),
+        );
+
+        $response = $client->send(new Request('user.drop', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+		$returnCode = $response['val']['me']['struct']['status']['me']['int'];
+		return ($returnCode);
+    }	
+
+	/**
+    * Share a folder.
+    *
+    * @param folderId and userId.
+    *
+    * @return integer return code.
+    *   An integer that is the return code of the call.
+    */	
+	public function shareSubmissionFolder($folderId, $shared_with) 
+    {
+        $client = new Client($this->getUrl());
+        $args = array(
+            'sid' => new Value($this->getSid()),
+            'id' => new Value($folderId),
+            'shared_with' => new Value($shared_with),
+        );
+
+        $response = $client->send(new Request('folder.sharing', array(new Value($args, "struct"))));
+        $response = json_decode(json_encode($response), true);
+		$returnCode = $response['val']['me']['struct']['status']['me']['int'];
+		return ($returnCode);
+    }	
 }
