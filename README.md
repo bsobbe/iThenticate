@@ -1,25 +1,30 @@
-# PHP [iThenticate](http://www.ithenticate.com/)
+# ithenticatewithusersmanagement
+New version for iThenticate
+
+
 A library to use **iThenticate** API easier and faster, to check and prevent plagiarism.
+This library is derived from bsobbe/iThenticate
+This library takes excellent work from bsobbe and just adds user management and compatibility with PHP 8
 
 ### Installation
 You can install via **composer** package manager with the following command:
 
 ```
-composer.phar require bsobbe/ithenticate "*"
+composer.phar require joelfan/ithenticate "*"
 ```
 
 Or add the following to your **composer.json** file:
 
 ```
 "require": {
-        "bsobbe/ithenticate": "*"
+        "joelfan/ithenticate": "*"
 },
 ```
 
 ### Usage
 Once the installation is completed, simply use the library with:
 ```php
-use bsobbe\ithenticate\Ithenticate;
+use joelfan\ithenticate\Ithenticate;
 ```
 You will be able to use the library by creating instance of the ```Ithenticate``` class, make sure you pass your iThenticate API **username** and **password** to the constructor (You might need SSL to connect to the API):
 ```php
@@ -34,7 +39,7 @@ I strongly suggest to read the [iThenticate API Guide](http://www.ithenticate.co
 #### Submit document
 Here is one simple example to send new document:
 ```php
-$ithenticate = new \bsobbe\ithenticate\Ithenticate("username", "password");
+$ithenticate = new \joelfan\ithenticate\Ithenticate("username", "password");
 //The value in result variable is the document_id of the inserted document.
 $result = $ithenticate->submitDocument(
                 "Cloud Computing",
@@ -48,7 +53,7 @@ $result = $ithenticate->submitDocument(
 
 #### Get document data
 ```php
-$ithenticate = new \bsobbe\ithenticate\Ithenticate("username", "password");
+$ithenticate = new \joelfan\ithenticate\Ithenticate("username", "password");
 $result = $ithenticate->documentGetRequest(12345);
 // Since we are requesting 1 document, there should be 1 document only in the response.
 $document = reset($result['documents']);
@@ -65,7 +70,7 @@ $uploaded_time = $document['uploaded_time']; // The time the document was upload
 
 #### Get report data
 ```php
-$ithenticate = new \bsobbe\ithenticate\Ithenticate("username", "password");
+$ithenticate = new \joelfan\ithenticate\Ithenticate("username", "password");
 $result = $ithenticate->reportGetRequest(98765, 1, 1, 1); // The report ID.
 
 $view_only_url = $result['view_only_url'];
