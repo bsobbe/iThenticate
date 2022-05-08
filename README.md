@@ -1,4 +1,4 @@
-# ithenticatewithusersmanagement
+# iThenticateWithUsersManagement
 New version for iThenticate
 
 
