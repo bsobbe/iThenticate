@@ -10,14 +10,14 @@ This library takes excellent work from bsobbe and just adds user management and 
 You can install via **composer** package manager with the following command:
 
 ```
-composer.phar require joelfan/ithenticate "*"
+composer.phar require joelfan/ithenticatewithusermanagement "*"
 ```
 
 Or add the following to your **composer.json** file:
 
 ```
 "require": {
-        "joelfan/ithenticate": "*"
+        "joelfan/ithenticatewithusermanagement": "*"
 },
 ```
 
