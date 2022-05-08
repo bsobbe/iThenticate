@@ -1,6 +1,6 @@
 <?php
 
-namespace joelfan\i;
+namespace joelfan\ithenticatewithusermanagement;
 
 /**
  * Using needed classes from PhpXmlRpc library.
