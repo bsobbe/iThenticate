@@ -24,7 +24,7 @@ Or add the following to your **composer.json** file:
 ### Usage
 Once the installation is completed, simply use the library with:
 ```php
-use joelfan\ithenticate\Ithenticate;
+use joelfan\ithenticate\IthenticateWithUserManagement;
 ```
 You will be able to use the library by creating instance of the ```Ithenticate``` class, make sure you pass your iThenticate API **username** and **password** to the constructor (You might need SSL to connect to the API):
 ```php
