@@ -11,7 +11,12 @@ use PhpXmlRpc\Client;
 
 class IthenticateWithUserManagement
 {
-    /**
+	///////////////// joelfan
+	function lw ($msg) {
+		file_put_contents ('/var/www/html/ojstest/plugins/generic/plagiarism/log.txt', date("Y:m:d H:i:s") . " $msg\n", FILE_APPEND);
+	}
+	
+	/**
      * This property is for ithenticateWithUserManagement API Url.
      */
     private $url;
@@ -20,22 +25,22 @@ class IthenticateWithUserManagement
      */
     private $username;
     private $password;
-    //This property will be filled with the login session hash value returned by ithenticateWithUserManagement's API after logging in.
     private $sid;
-	private $proxy;
-	private $port;
+	private $proxyName;
+	private $proxyPort;
 
     /**
      * Construct method initializes Url, Username, and Password in properties.
      * It also logs in using login method and puts the login hash session into
      * the defined property.
      */
-    public function __construct($username, $password, $proxyObject = {})
+    public function __construct($username, $password, $proxyStruct = null)
     {
         $this->setUrl("https://api.ithenticate.com/rpc");
         $this->setUsername($username);
         $this->setPassword($password);
-        $this->setProxy($proxyObject);
+        if (isset($proxyStruct)) $this->setProxy($proxyStruct);
+		$this->lw('IthenticatePlugin: Now trying to login');
         $this->setSid($this->login());
     }
 
@@ -80,13 +85,14 @@ class IthenticateWithUserManagement
     }
 
     /**
-     * This is setter method for ithenticateWithUserManagement's responded hash login session.
+     * This is setter method for ithenticateWithUserManagement's proxy.
      */
     public function setProxy($pid)
     {
-        if ((property_exists($this, "proxy")) && (property_exists($this, "port"))) {
-            $this->proxy = $sid->proxy;
-            $this->port = $sid->port;
+        if ((isset($pid[0])) && (isset($pid[1]))) {
+			$this->lw('IthenticatePlugin: Now setting proxy '.$pid[0]." ".$pid[1]);
+            $this->proxyName = $pid[0];
+            $this->proxyPort = $pid[1];
         }
     }
 
@@ -135,16 +141,16 @@ class IthenticateWithUserManagement
      */
     public function getProxyName()
     {
-        if (property_exists($this, 'proxy')) {
-            return $this->proxy;
+        if (property_exists($this, 'proxyName')) {
+            return $this->proxyName;
         }
     }
 
 
     public function getProxyPort()
     {
-        if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) {
-            return $this->port;
+        if ((property_exists($this, 'proxyName')) && (property_exists($this, 'proxyPort'))) {
+            return $this->proxyPort;
         }
     }
 
@@ -160,10 +166,16 @@ class IthenticateWithUserManagement
             'username' => new Value($this->getUsername()),
             'password' => new Value($this->getPassword())
         );
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
-        $response = $client->send(new Request('login', array(new Value($args, "struct"))));
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: Login '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
+		$client->setSSLVerifyPeer(false);
+		$this->lw('IthenticatePlugin: now calling send to login '.$this->proxyName." ".$this->proxyPort);
+		$response = $client->send(new Request('login', array(new Value($args, "struct"))));
+		$this->lw('IthenticatePlugin: after login '.$this->proxyName." ".$this->proxyPort);
         $response = json_decode(json_encode($response), true);
-
+		//$this->lw(var_export($response, true));
         if ($response['val']['me']['struct']['status']['me']['int'] === 401) {
             throw new \Exception($response['val']['me']['struct']['messages']['me']['array'][0]['me']['string'], 401);
         }
@@ -209,7 +221,10 @@ class IthenticateWithUserManagement
             'uploads' => new Value($uploads_array, 'array'),
         );
 		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: submitDocument '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
         $response = $client->send(new Request('document.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['uploaded']['me']['array'][0]['me']['struct']['id']['me']['int'])) {
@@ -235,7 +250,10 @@ class IthenticateWithUserManagement
             'name' => new Value($group_name),
         );
 
-        if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: createGroup'.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('group.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['id']['me']['int'])) {
@@ -259,7 +277,10 @@ class IthenticateWithUserManagement
             'add_to_index' => new Value($add_to_index),
         );
 		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: createFolder '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		} 
         $response = $client->send(new Request('folder.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['id']['me']['int'])) {
@@ -280,11 +301,12 @@ class IthenticateWithUserManagement
             'id' => new Value($folderId),
             'r' => new Value('500'),
         );
-				
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
-
-        $response = $client->send(new Request('group.folders', array(new Value($args, "struct"))));
-
+		
+        if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: fetchFolderGroup '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
+		$response = $client->send(new Request('group.folders', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['folders']['me']['array'])) {
             return array_combine(
@@ -311,7 +333,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: fetchGroupList '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('group.list', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['groups']['me']['array'])) {
@@ -339,7 +364,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: fetchFolderList '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('folder.list', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['folders']['me']['array'])) {
@@ -375,7 +403,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: documentgetRequest '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
 
@@ -447,7 +478,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: reportGetRequest '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('report.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
 
@@ -480,7 +514,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: fetchDocumentReportState '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['is_pending']['me']['int'])) {
@@ -509,7 +546,10 @@ class IthenticateWithUserManagement
         );
 
 				
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: fetchDocumentReportId '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('document.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['documents']['me']['array'][0]['me']['struct']['parts']['me']['array'][0]['me']['struct']['id']['me']['int'])) {
@@ -539,7 +579,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: fetchDocumentReportUrl '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('report.get', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
         if (isset($response['val']['me']['struct']['view_only_url']['me']['string'])) {
@@ -644,9 +687,12 @@ class IthenticateWithUserManagement
         $args = array(
             'sid' => new Value($this->getSid()),
         );
-
-        		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+       		
+		$this->lw('IthenticatePlugin: ==> '.$this->proxyName." ".$this->proxyPort);
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: fetchUserList '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('user.list', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
 		//print_r($response);
@@ -686,7 +732,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: addUser '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('user.add', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
 		$returnCode = $response['val']['me']['struct']['status']['me']['int'];
@@ -714,7 +763,10 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: dropUser '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+		}
 		$response = $client->send(new Request('user.drop', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
 		$returnCode = $response['val']['me']['struct']['status']['me']['int'];
@@ -739,7 +791,11 @@ class IthenticateWithUserManagement
         );
 
         		
-		if ((property_exists($this, 'proxy')) && (property_exists($this, 'port'))) setProxy(getProxyName(), getProxyPort()); 
+		if ((isset($this->proxyName)) && (isset($this->proxyPort))) {
+			$this->lw('IthenticatePlugin: shareSubmissionFolder '.$this->proxyName." ".$this->proxyPort);
+			$client->setProxy($this->proxyName, $this->proxyPort); 
+			$this->lw('IthenticatePlugin: after setProxy '.$this->proxyName." ".$this->proxyPort);
+		}
 		$response = $client->send(new Request('folder.sharing', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
 		$returnCode = $response['val']['me']['struct']['status']['me']['int'];
