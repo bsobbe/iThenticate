@@ -131,9 +131,21 @@ class Ithenticate
 
         $response = $client->send(new Request('login', array(new Value($args, "struct"))));
         $response = json_decode(json_encode($response), true);
-
-        if ($response['val']['me']['struct']['status']['me']['int'] === 401) {
-            throw new \Exception($response['val']['me']['struct']['messages']['me']['array'][0]['me']['string'], 401);
+        //errno is set at top level when there is a technological problem with the request, such as a transient network error
+        if (property_exists($response->errno)) {
+            throw new \Exception("iThenticate connection error, try again");
+            return false;
+        }
+        $statusCode = $response['val']['me']['struct']['status']['me']['int'];
+        //Gather error messages if login is not successful
+        if ($statusCode !== 200) {
+            //components of the request, fields, that can cause a problem are listed as array keys with the specific error message for each contained inside
+            $errorFields = array_keys($response['val']['me']['struct']['errors']['me']['struct']);
+            foreach ($errorFields as $errorField) {
+                $errorString = $response['val']['me']['struct']['errors']['me']['struct'][$errorField]['me']['array'][0]['me']['string'];
+                $errorMessage .= $errorField . ": " . $errorString . ". ";
+            }
+            throw new \Exception($errorMessage, $statusCode);
         }
 
         if (isset($response['val']['me']['struct']['sid']['me']['string'])) {
